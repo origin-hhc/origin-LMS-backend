@@ -14,6 +14,7 @@ const { sendResponse } = require("../../utils/response");
 const { sendMail } = require("../../services/mailer");
 const allowedStatus = require("../../config/allowedStatus");
 const roles = require("../../config/roles");
+const { validateSubRoles } = require("../admin/users/validations/validator");
 
 const validateNameFields = (data) => {
   const namePattern = /^[A-Za-z]+$/;
@@ -133,15 +134,9 @@ const validateRequest = async (req, res) => {
         message: "Mention the role of user",
         title: "Request failed",
       });
-    } else if (!Array.isArray(subRoles) || subRoles.length === 0) {
-      return sendResponse({
-        res,
-        statusCode: 400,
-        status: false,
-        message: "subRoles must be a non-empty array",
-        title: "Request failed",
-      });
     }
+
+    await validateSubRoles(subRoles);
   } else if (role !== roles.admin && role !== roles.user) {
     return sendResponse({
       res,
@@ -178,11 +173,11 @@ const register = async (req, res) => {
   } = req.body;
   const createdBy = req?.user?._id || null;
 
-  // Validate request fields
-  const validationError = await validateRequest(req, res);
-  if (validationError) return validationError;
-
   try {
+    // Validate request fields
+    const validationError = await validateRequest(req, res);
+    if (validationError) return validationError;
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     let newUser = {

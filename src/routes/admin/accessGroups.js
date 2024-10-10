@@ -4,43 +4,44 @@ const {
   verifyAdminAccess,
   verifySuperAdminAccess,
 } = require("../../middlewares/admin");
-const {
-  createSubRole,
-  updateSubRole,
-  deleteSubRole,
-  getSubRoles,
-} = require("../../controllers/admin/sub-roles");
+
 const { verifyOTP } = require("../../middlewares/verifyOTP");
+
+const {
+  getAccessGroups,
+  createAccessGroup,
+  updateAccessGroup,
+  deleteAccessGroup,
+} = require("../../controllers/admin/access-group");
 
 const router = express.Router();
 
 router.get(
-  "/sub-roles",
+  "/access-groups",
   authenticate,
   verifyAdminAccess,
   verifyOTP,
-  getSubRoles
+  getAccessGroups
 );
 router.post(
-  "/create-sub-role",
+  "/create-access-group",
   authenticate,
   verifySuperAdminAccess,
   verifyOTP,
-  createSubRole
+  createAccessGroup
 );
 router.put(
-  "/update-sub-role",
+  "/update-access-group",
   authenticate,
   verifySuperAdminAccess,
   verifyOTP,
-  updateSubRole
+  updateAccessGroup
 );
 router.delete(
-  "/sub-role/:id",
+  "/access-group/:id",
   authenticate,
   verifySuperAdminAccess,
   verifyOTP,
-  deleteSubRole
+  deleteAccessGroup
 );
-
 module.exports = router;

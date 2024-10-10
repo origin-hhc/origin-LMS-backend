@@ -8,7 +8,9 @@ const connectDB = require("./src/db/database");
 // admin routes
 const rolesRoute = require("./src/routes/admin/roles");
 const permissionsRoute = require("./src/routes/admin/permissions");
-// const usersRoute = require("./src/routes/admin/users");
+const accessGroupsRoute = require("./src/routes/admin/accessGroups");
+const categoriesRoute = require("./src/routes/admin/categories");
+const usersRoute = require("./src/routes/admin/users");
 
 // routes
 const authRoute = require("./src/routes/auth");
@@ -24,7 +26,9 @@ connectDB();
 // // admin routes
 app.use("/api/admin", rolesRoute);
 app.use("/api/admin", permissionsRoute);
-// app.use("/api/admin", usersRoute);
+app.use("/api/admin", accessGroupsRoute);
+app.use("/api/admin", categoriesRoute);
+app.use("/api/admin", usersRoute);
 //admin routes end
 
 app.use("/api", authRoute);
