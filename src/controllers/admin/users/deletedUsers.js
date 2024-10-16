@@ -1,10 +1,9 @@
 require("dotenv").config();
-const allowedStatus = require("../../../config/allowedStatus");
 const roles = require("../../../config/roles");
 const { User } = require("../../../models/user");
 const { sendResponse } = require("../../../utils/response");
 
-const pendingRegistrations = async (req, res) => {
+const deletedUsers = async (req, res) => {
   try {
     const userExists = req.user;
 
@@ -26,8 +25,7 @@ const pendingRegistrations = async (req, res) => {
     }
 
     const searchCondition = {
-      status: allowedStatus.requested, // Status must be "requested"
-      // ...(searchTerm ? { name: { $regex: searchTerm, $options: "i" } } : {}),
+      isDeleted: true,
     };
 
     if (role && userExists.role === roles.super) {
@@ -67,7 +65,7 @@ const pendingRegistrations = async (req, res) => {
     }
 
     // Count the total number of records,  // Fetch the paginated records
-    const [totalRecords, pendingRegistrations] = await Promise.all([
+    const [totalRecords, deletedUserResult] = await Promise.all([
       User.countDocuments(searchCondition),
       User.find(searchCondition)
         .skip(skip)
@@ -75,32 +73,36 @@ const pendingRegistrations = async (req, res) => {
         .select(
           "-password -__v -emailOtp -emailOtpCreatedAt -isEmailOtpVerified -otp -otpCreatedAt -isOtpVerified"
         )
+        .populate({
+          path: "accessGroup",
+          select: "_id name",
+        })
         .sort({ createdAt: -1 }),
     ]);
 
     const Response = {
       totalRecords,
-      pendingRegistrations,
+      deletedUserResult,
     };
 
     return sendResponse({
       res,
       statusCode: 200,
       status: true,
-      message: "Pending registrations",
+      message: "Deleted users",
       title: "Request success",
       Response,
     });
   } catch (error) {
-    console.log("Error getting pending registrations:", error?.message);
+    console.log("Error getting deleted users:", error?.message);
     return sendResponse({
       res,
       statusCode: 500,
       status: false,
-      message: error?.message || "Error getting pending registrations",
+      message: error?.message || "Error getting deleted users",
       title: "Request failed",
     });
   }
 };
 
-module.exports = { pendingRegistrations };
+module.exports = { deletedUsers };

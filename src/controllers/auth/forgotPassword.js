@@ -84,6 +84,7 @@ const forgotPassword = async (req, res) => {
 
     const dataToSend = {
       token: token,
+      isPhoneOtpVerified: userExists.isPhoneOtpVerified || false,
     };
 
     await sendMail({

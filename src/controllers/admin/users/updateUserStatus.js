@@ -56,6 +56,8 @@ const updateUserStatus = async (req, res) => {
           ? allowedStatus.approve
           : allowedStatus.reject,
       updatedBy: userExists._id,
+      updatedTime: new Date(),
+      userStatus: action === actions.approve ? true : null,
     };
 
     // Create filter for updating users

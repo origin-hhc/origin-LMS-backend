@@ -9,7 +9,13 @@ const { validateSubRoles } = require("./validations/validator");
 
 const updateUser = async (req, res) => {
   try {
-    const { userIds, subRoles, accessGroup, status } = req?.body;
+    const {
+      userIds,
+      subRoles,
+      accessGroup,
+      status,
+      isMarkForDeletion = false,
+    } = req?.body;
 
     const userExists = req.user;
 
@@ -42,28 +48,58 @@ const updateUser = async (req, res) => {
     // Convert userIds to an array if it's a single string
     const idsArray = Array.isArray(userIds) ? userIds : [userIds];
 
-    // If status is Inactive, update isDeleted field
-    if (status === "Inactive") {
+    // If status is Inactive/active, update userStatus and if isMarkForDeletion update isDeleted field
+    if (status === "Inactive" || status === "Active" || isMarkForDeletion) {
+      let updateData = {};
+
+      if (status) {
+        // Set userStatus based on the status value
+        updateData.userStatus = status === "Inactive" ? false : true;
+        updateData.updatedBy = userExists._id;
+        updateData.updatedTime = new Date();
+      }
+
+      if (isMarkForDeletion) {
+        // Mark for deletion if isMarkForDeletion is true
+        updateData.isDeleted = true;
+        updateData.deletedBy = userExists._id;
+        updateData.deletedTime = new Date();
+      }
+
+      if (Object.keys(updateData).length === 0) {
+        // No conditions matched to perform an update
+        return sendResponse({
+          res,
+          statusCode: 400,
+          status: false,
+          message: `No valid conditions for updating were matched`,
+          title: "Request failed",
+        });
+      }
+
       const result = await User.updateMany(
         { _id: { $in: idsArray } },
-        { isDeleted: true, updatedBy: userExists._id },
+        updateData,
         { new: true } // Return the updated documents
       );
 
+      // Check if any documents were modified
       if (result.modifiedCount === 0) {
         return sendResponse({
           res,
           statusCode: 400,
           status: false,
-          message: `No users were marked for deletion`,
+          message: `No users were updated or marked for deletion.`,
           title: "Request failed",
         });
       }
 
+      const operation = isMarkForDeletion ? "marked for deletion" : "updated";
+
       console.log(
         `${result.modifiedCount} ${
           result.modifiedCount > 1 ? "users" : "user"
-        } were marked for deletion.`
+        } ${operation}.`
       );
 
       return sendResponse({
@@ -72,7 +108,7 @@ const updateUser = async (req, res) => {
         status: true,
         message: `${
           result.modifiedCount > 1 ? "Users" : "User"
-        } marked for deletion`,
+        } ${operation} successfully.`,
         title: "Request success",
       });
     }
@@ -96,6 +132,7 @@ const updateUser = async (req, res) => {
 
     let updateData = {
       updatedBy: userExists._id,
+      updatedTime: new Date(),
     };
 
     // Create filter for updating users

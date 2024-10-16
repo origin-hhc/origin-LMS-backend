@@ -11,6 +11,7 @@ const permissionsRoute = require("./src/routes/admin/permissions");
 const accessGroupsRoute = require("./src/routes/admin/accessGroups");
 const categoriesRoute = require("./src/routes/admin/categories");
 const usersRoute = require("./src/routes/admin/users");
+const dashboardRoute = require("./src/routes/admin/dashboard");
 
 // routes
 const authRoute = require("./src/routes/auth");
@@ -29,6 +30,7 @@ app.use("/api/admin", permissionsRoute);
 app.use("/api/admin", accessGroupsRoute);
 app.use("/api/admin", categoriesRoute);
 app.use("/api/admin", usersRoute);
+app.use("/api/admin", dashboardRoute);
 //admin routes end
 
 app.use("/api", authRoute);

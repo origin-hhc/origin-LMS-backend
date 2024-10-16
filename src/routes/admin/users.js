@@ -6,6 +6,8 @@ const {
   allUsers,
   updateUser,
   updateUserStatus,
+  deletedUsers,
+  rejectedUsers,
 } = require("../../controllers/admin/users");
 const { verifyOTP } = require("../../middlewares/verifyOTP");
 
@@ -32,5 +34,19 @@ router.put(
   verifyAdminAccess,
   verifyOTP,
   updateUser
+);
+router.get(
+  "/deleted-users",
+  authenticate,
+  verifyAdminAccess,
+  verifyOTP,
+  deletedUsers
+);
+router.get(
+  "/rejected-users",
+  authenticate,
+  verifyAdminAccess,
+  verifyOTP,
+  rejectedUsers
 );
 module.exports = router;

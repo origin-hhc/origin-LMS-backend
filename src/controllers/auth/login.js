@@ -101,6 +101,7 @@ const login = async (req, res) => {
       // role: userExists?.role,
       // subRoles: userExists?.subRoles,
       token: token,
+      isPhoneOtpVerified: userExists.isPhoneOtpVerified || false,
     };
 
     await sendMail({

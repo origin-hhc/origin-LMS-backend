@@ -33,17 +33,17 @@ const allUsers = async (req, res) => {
       status: { $nin: [allowedStatus.requested, allowedStatus.reject] },
     };
 
-    if (role) {
-      searchCondition.role = { $regex: role, $options: "i" };
+    if (role && userExists.role === roles.super) {
+      searchCondition.role = { $regex: role, $options: "i", $ne: roles.super };
     } else {
       searchCondition.role = { $in: fetchedRoles };
     }
 
     // assuming status will be "Active", "Inactive"
     if (status === "Active") {
-      searchCondition.isDeleted = false;
+      searchCondition.userStatus = true;
     } else if (status === "Inactive") {
-      searchCondition.isDeleted = true;
+      searchCondition.userStatus = false;
     }
 
     if (searchTerm) {
@@ -93,12 +93,20 @@ const allUsers = async (req, res) => {
         .skip(skip)
         .limit(limit)
         .select(
-          "-password -__v -emailOtp -emailOtpCreatedAt -isEmailOtpVerified"
+          "-password -__v -emailOtp -emailOtpCreatedAt -isEmailOtpVerified -phoneOtp -phoneOtpCreatedAt -isPhoneOtpVerified"
         )
         .sort({ createdAt: -1 })
         .populate("subRoles")
         .populate({
           path: "createdBy",
+          select: "_id name email username role", // Fields to include
+        })
+        .populate({
+          path: "updatedBy",
+          select: "_id name email username role", // Fields to include
+        })
+        .populate({
+          path: "deletedBy",
           select: "_id name email username role", // Fields to include
         })
         .populate({

@@ -137,7 +137,7 @@ const validateRequest = async (req, res) => {
     }
 
     await validateSubRoles(subRoles);
-  } else if (role !== roles.admin && role !== roles.user) {
+  } else if (role && role !== roles.admin && role !== roles.user) {
     return sendResponse({
       res,
       statusCode: 400,
@@ -198,6 +198,7 @@ const register = async (req, res) => {
       newUser.createdBy = createdBy;
       newUser.status = allowedStatus.approve;
       newUser.subRoles = subRoles;
+      newUser.createdTime = new Date();
     }
     const user = await User.create(newUser);
 
@@ -218,6 +219,7 @@ const register = async (req, res) => {
       // role: user?.role,
       // subRoles: user?.subRoles,
       token: token,
+      isPhoneOtpVerified: false,
     };
 
     await sendMail({

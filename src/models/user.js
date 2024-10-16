@@ -76,14 +76,32 @@ const userSchema = new mongoose.Schema(
       ref: "user",
       default: null,
     },
+    createdTime: {
+      type: Date,
+    },
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
       default: null,
     },
+    updatedTime: {
+      type: Date,
+    },
+    deletedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      default: null,
+    },
+    deletedTime: {
+      type: Date,
+    },
     isDeleted: {
       type: Boolean,
       default: false,
+    },
+    userStatus: {
+      type: Boolean,
+      default: null, // Defaults to "null", true(Active) and false(Inactive)
     },
     emailOtp: {
       type: String,
@@ -95,6 +113,19 @@ const userSchema = new mongoose.Schema(
       type: Date,
     },
     isEmailOtpVerified: {
+      type: Boolean,
+      default: false,
+    },
+    phoneOtp: {
+      type: String,
+      minLength: 6,
+      maxlength: 6,
+    },
+    // will expire after 2min
+    phoneOtpCreatedAt: {
+      type: Date,
+    },
+    isPhoneOtpVerified: {
       type: Boolean,
       default: false,
     },
