@@ -1,5 +1,6 @@
 require("dotenv").config();
 const roles = require("../../../config/roles");
+const allowedUserStatus = require("../../../config/allowedUserStatus");
 const { AccessGroup } = require("../../../models/accessGroup");
 const { User } = require("../../../models/user");
 const { sendResponse } = require("../../../utils/response");
@@ -13,8 +14,8 @@ const updateUser = async (req, res) => {
       userIds,
       subRoles,
       accessGroup,
-      status,
       isMarkForDeletion = false,
+      userStatus,
     } = req?.body;
 
     const userExists = req.user;
@@ -35,7 +36,11 @@ const updateUser = async (req, res) => {
     }
 
     // Validate status
-    if (!["Active", "Inactive"].includes(status)) {
+    if (
+      ![allowedUserStatus.active, allowedUserStatus.inactive].includes(
+        userStatus
+      )
+    ) {
       return sendResponse({
         res,
         statusCode: 400,
@@ -48,20 +53,14 @@ const updateUser = async (req, res) => {
     // Convert userIds to an array if it's a single string
     const idsArray = Array.isArray(userIds) ? userIds : [userIds];
 
-    // If status is Inactive/active, update userStatus and if isMarkForDeletion update isDeleted field
-    if (status === "Inactive" || status === "Active" || isMarkForDeletion) {
+    // if isMarkForDeletion update isDeleted field to true and userStatus to false
+    if (isMarkForDeletion) {
       let updateData = {};
-
-      if (status) {
-        // Set userStatus based on the status value
-        updateData.userStatus = status === "Inactive" ? false : true;
-        updateData.updatedBy = userExists._id;
-        updateData.updatedTime = new Date();
-      }
 
       if (isMarkForDeletion) {
         // Mark for deletion if isMarkForDeletion is true
         updateData.isDeleted = true;
+        updateData.userStatus = false;
         updateData.deletedBy = userExists._id;
         updateData.deletedTime = new Date();
       }
@@ -133,6 +132,7 @@ const updateUser = async (req, res) => {
     let updateData = {
       updatedBy: userExists._id,
       updatedTime: new Date(),
+      userStatus: allowedUserStatus.active === userStatus ? true : false,
     };
 
     // Create filter for updating users

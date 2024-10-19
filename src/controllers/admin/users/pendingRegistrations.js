@@ -73,7 +73,7 @@ const pendingRegistrations = async (req, res) => {
         .skip(skip)
         .limit(limit)
         .select(
-          "-password -__v -emailOtp -emailOtpCreatedAt -isEmailOtpVerified -otp -otpCreatedAt -isOtpVerified"
+          "-password -__v -emailOtp -emailOtpCreatedAt -isEmailOtpVerified -phoneOtp -phoneOtpCreatedAt -isPhoneOtpVerified -isOtpVerified -otp -otpCreatedAt"
         )
         .sort({ createdAt: -1 }),
     ]);

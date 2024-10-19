@@ -19,7 +19,10 @@ const getAccessGroups = async (req, res) => {
     // Count the total number of records,  // Fetch the paginated records
     const [totalRecords, AccessGroups] = await Promise.all([
       AccessGroup.countDocuments(searchCondition),
-      AccessGroup.find(searchCondition).skip(skip).limit(limit),
+      AccessGroup.find(searchCondition)
+        .skip(skip)
+        .limit(limit)
+        .populate("permissions"),
       //   .sort({ createdAt: -1 })
     ]);
 

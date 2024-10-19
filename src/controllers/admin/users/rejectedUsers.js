@@ -72,11 +72,24 @@ const rejectedUsers = async (req, res) => {
         .skip(skip)
         .limit(limit)
         .select(
-          "-password -__v -emailOtp -emailOtpCreatedAt -isEmailOtpVerified -otp -otpCreatedAt -isOtpVerified"
+          "-password -__v -emailOtp -emailOtpCreatedAt -isEmailOtpVerified -phoneOtp -phoneOtpCreatedAt -isPhoneOtpVerified -isOtpVerified -otp -otpCreatedAt"
         )
         .populate({
           path: "accessGroup",
           select: "_id name",
+        })
+        .populate("subRoles")
+        .populate({
+          path: "createdBy",
+          select: "_id name email username role", // Fields to include
+        })
+        .populate({
+          path: "updatedBy",
+          select: "_id name email username role", // Fields to include
+        })
+        .populate({
+          path: "deletedBy",
+          select: "_id name email username role", // Fields to include
         })
         .sort({ createdAt: -1 }),
     ]);

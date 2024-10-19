@@ -31,6 +31,7 @@ const allUsers = async (req, res) => {
     let searchCondition = {
       // status: { $ne: allowedStatus.requested }, // Default status filter
       status: { $nin: [allowedStatus.requested, allowedStatus.reject] },
+      isDeleted: false,
     };
 
     if (role && userExists.role === roles.super) {
@@ -81,8 +82,15 @@ const allUsers = async (req, res) => {
     }
 
     if (subRole) {
+      const subRoleArray =
+        typeof subRole === "string"
+          ? subRole.split(",").map((role) => role.trim())
+          : Array.isArray(subRole)
+          ? subRole
+          : [subRole];
+
       searchCondition.subRoles = {
-        $in: Array.isArray(subRole) ? subRole : [subRole],
+        $in: subRoleArray,
       }; // Filter by subRole
     }
 
@@ -93,7 +101,7 @@ const allUsers = async (req, res) => {
         .skip(skip)
         .limit(limit)
         .select(
-          "-password -__v -emailOtp -emailOtpCreatedAt -isEmailOtpVerified -phoneOtp -phoneOtpCreatedAt -isPhoneOtpVerified"
+          "-password -__v -emailOtp -emailOtpCreatedAt -isEmailOtpVerified -phoneOtp -phoneOtpCreatedAt -isPhoneOtpVerified -isOtpVerified -otp -otpCreatedAt"
         )
         .sort({ createdAt: -1 })
         .populate("subRoles")

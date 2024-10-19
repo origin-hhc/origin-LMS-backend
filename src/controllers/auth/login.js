@@ -12,10 +12,11 @@ const {
 const { sendResponse } = require("../../utils/response");
 const { User } = require("../../models/user");
 const { sendMail } = require("../../services/mailer");
+const roles = require("../../config/roles");
 
 // Login endpoint
 const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, adminPannel = false } = req.body;
   const requiredFields = ["email", "password"];
 
   // Check if all required fields are present in the request body
@@ -73,6 +74,16 @@ const login = async (req, res) => {
         statusCode: 400,
         status: false,
         message: `Incorrect username or password`,
+        title: "Request failed",
+      });
+    }
+
+    if (adminPannel && userExists?.role === roles.user) {
+      return sendResponse({
+        res,
+        statusCode: 400,
+        status: false,
+        message: `You can't login here.`,
         title: "Request failed",
       });
     }

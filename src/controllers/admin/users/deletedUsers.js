@@ -9,7 +9,9 @@ const deletedUsers = async (req, res) => {
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const accessGroup = req.query?.accessGroup || null;
     const role = req.query?.role || null;
+    const subRole = req.query?.subRole || null;
 
     // Calculate the number of records to skip
     const skip = (page - 1) * limit;
@@ -64,6 +66,23 @@ const deletedUsers = async (req, res) => {
       }
     }
 
+    if (accessGroup) {
+      searchCondition.accessGroup = accessGroup; // Filter by access group
+    }
+
+    if (subRole) {
+      const subRoleArray =
+        typeof subRole === "string"
+          ? subRole.split(",").map((role) => role.trim())
+          : Array.isArray(subRole)
+          ? subRole
+          : [subRole];
+
+      searchCondition.subRoles = {
+        $in: subRoleArray,
+      }; // Filter by subRole
+    }
+
     // Count the total number of records,  // Fetch the paginated records
     const [totalRecords, deletedUserResult] = await Promise.all([
       User.countDocuments(searchCondition),
@@ -71,11 +90,24 @@ const deletedUsers = async (req, res) => {
         .skip(skip)
         .limit(limit)
         .select(
-          "-password -__v -emailOtp -emailOtpCreatedAt -isEmailOtpVerified -otp -otpCreatedAt -isOtpVerified"
+          "-password -__v -emailOtp -emailOtpCreatedAt -isEmailOtpVerified -phoneOtp -phoneOtpCreatedAt -isPhoneOtpVerified -isOtpVerified -otp -otpCreatedAt"
         )
         .populate({
           path: "accessGroup",
           select: "_id name",
+        })
+        .populate("subRoles")
+        .populate({
+          path: "createdBy",
+          select: "_id name email username role", // Fields to include
+        })
+        .populate({
+          path: "updatedBy",
+          select: "_id name email username role", // Fields to include
+        })
+        .populate({
+          path: "deletedBy",
+          select: "_id name email username role", // Fields to include
         })
         .sort({ createdAt: -1 }),
     ]);
