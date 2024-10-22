@@ -22,8 +22,8 @@ const getAccessGroups = async (req, res) => {
       AccessGroup.find(searchCondition)
         .skip(skip)
         .limit(limit)
-        .populate("permissions"),
-      //   .sort({ createdAt: -1 })
+        .populate("permissions")
+        .sort({ createdAt: -1 }),
     ]);
 
     const Response = {

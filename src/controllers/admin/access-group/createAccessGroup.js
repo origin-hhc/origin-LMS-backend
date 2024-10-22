@@ -1,6 +1,7 @@
 require("dotenv").config();
 const { AccessGroup } = require("../../../models/accessGroup");
 const { sendResponse } = require("../../../utils/response");
+const { validatePermissions } = require("./validations/validator");
 
 const createAccessGroup = async (req, res) => {
   try {

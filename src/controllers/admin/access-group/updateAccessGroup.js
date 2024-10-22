@@ -39,7 +39,6 @@ const updateAccessGroup = async (req, res) => {
         status: true,
         message: "Access group updated",
         title: "Request success",
-        Response: updatedAccessGroup,
       });
     } else {
       return sendResponse({

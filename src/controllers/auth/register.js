@@ -15,6 +15,7 @@ const { sendMail } = require("../../services/mailer");
 const allowedStatus = require("../../config/allowedStatus");
 const roles = require("../../config/roles");
 const { validateSubRoles } = require("../admin/users/validations/validator");
+const allowedUserStatus = require("../../config/allowedUserStatus");
 
 const validateNameFields = (data) => {
   const namePattern = /^[A-Za-z]+$/;
@@ -198,9 +199,20 @@ const register = async (req, res) => {
       newUser.createdBy = createdBy;
       newUser.status = allowedStatus.approve;
       newUser.subRoles = subRoles;
+      newUser.userStatus = allowedUserStatus.active;
       newUser.createdTime = new Date();
     }
     const user = await User.create(newUser);
+
+    if (createdBy) {
+      return sendResponse({
+        res,
+        statusCode: 200,
+        status: true,
+        message: "User added successfully",
+        title: "Request Sucess",
+      });
+    }
 
     const [token, emailOtp] = await Promise.all([
       generateToken(user),

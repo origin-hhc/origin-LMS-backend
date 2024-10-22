@@ -39,7 +39,8 @@ const updateUser = async (req, res) => {
     if (
       ![allowedUserStatus.active, allowedUserStatus.inactive].includes(
         userStatus
-      )
+      ) &&
+      !isMarkForDeletion
     ) {
       return sendResponse({
         res,
